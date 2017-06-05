@@ -2,7 +2,7 @@
 
 ![visual](qanda.gif)
 
-Jane Friedhoff's branch of Membrane. Read more [here](http://janefriedhoff.com/notepad/update/2017/06/05/membrane.html).
+Jane Friedhoff's fork of Membrane. Read more [here](http://janefriedhoff.com/notepad/update/2017/06/05/membrane.html).
 
 You need [Go](https://golang.org/doc/install), [Mongo](https://docs.mongodb.com/manual/installation/), and [Mercurial](https://www.mercurial-scm.org/wiki/Download) to run Membrane. [Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en) is helpful for posting to various endpoints.
 
