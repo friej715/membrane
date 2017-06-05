@@ -27,33 +27,25 @@ var AuthorPanel = React.createClass({
 	postToResponsesEndpoint: function() {
 		var con = this;
 		var text = $(this.refs.text.getDOMNode()).val();
-		// var links = $(this.refs.links.getDOMNode()).val().trim();
+		var links = $(this.refs.links.getDOMNode()).val().trim();
 		
-		// links = links.split(", ")
+		links = links.split(", ")
 
-		// var linkInfo = [];
-		// links.forEach(function(val, index) {
-		// 	var lastChar = val.charAt(val.length-1);
-		// 	var text = val;
-		// 	if (lastChar == ",") {
-		// 		text = text.slice(0, -1);
-		// 	} 
-		// 	linkInfo.push(text)
-		// })
-
-		var linkInfo = {
-				"text": "another",
-				"href": "http://google.com"
-		}
+		var linkInfo = [];
+		links.forEach(function(val, index) {
+			var lastChar = val.charAt(val.length-1);
+			var text = val;
+			if (lastChar == ",") {
+				text = text.slice(0, -1);
+			} 
+			linkInfo.push(text)
+		})
 
 		var data = {
 			text: text,
 			parent: [],
-			// links: linkInfo
+			links: linkInfo
 		}
-
-		console.log(data);
-		console.log(JSON.stringify(data))
 
 		$.ajax({
 			url: "/responses",
@@ -71,7 +63,9 @@ var AuthorPanel = React.createClass({
 		return (
 			<div>
 				<textarea type="textarea" rows="6" className="form-control" ref="text" placeholder="your text"/>
-			
+				<br/>
+				<textarea type="textarea" rows="4" className="form-control" ref="links" placeholder="links, separated by commas"/>
+
 				<button className="btn btn-default" onClick={this.postToResponsesEndpoint}>Finish</button>
 			</div>
 		)

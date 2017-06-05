@@ -34,8 +34,8 @@ h2 {
 /*highlighted prompt (with response)*/
 .active-prompt {
 	font-weight: normal;
-	/*padding:3px;*/
-    background-color: rgba(200,200,200,0.75);
+	padding:3px;
+    background-color: rgba(200,200,200,0.5);
 	text-decoration: none;
 	position:relative;
 	display:inline;

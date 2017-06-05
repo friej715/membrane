@@ -17,41 +17,41 @@ var AdminParent = React.createClass({
 			dataType: "json",
 			type: "GET",
 			success: function(data) {
+				console.log(data)
 				con.setState({response: data})
 			}
+
 		})
 	},
 
-	handleMouseEnter: function(e) {
-		this.refs.text.setState({curThing: e.target})
-	},
-
 	render: function() {
+		var elem;
+
+		var t = this.state.response.text;
 		return (
 			<div className="panelParent">
 				<div id="header">
 					<div>
 						<a href="/admin">Membrane</a>
-			            <LogOutButton/>
+            <LogOutButton />
 					</div>
 
 				</div>
 				<div id="admin-main" className="container-fluid">
 					<div className="row">
-						<div className="col-xs-12">
+						<div className="col-xs-7">
 							<span className="admin-title">Your article</span>
-							<ResponseParent ref="text" initialResponse={this.state.response}/>
+							<AuthorText text={t}/>
+						</div>
+
+						<div className="col-xs-5">
+							<AuthorWorkParent slug={window.location.pathname.split("/admin/")[1]}/>
 						</div>
 					</div>
 				</div>
-				<Modal />
 			</div>
 		)
 
-
-// 						<div className="col-xs-5">
-// 							<AuthorWorkParent handleMouseEnter={this.handleMouseEnter} slug={window.location.pathname.split("/admin/")[1]}/>
-// 						</div>
 
 
 		// return (
@@ -86,6 +86,25 @@ var AdminParent = React.createClass({
 
 })
 
+var AuthorText = React.createClass({
+	render: function() {
+		var pieces = [];
+
+		if (this.props.text != undefined) {
+			var split = this.props.text.split("\n\n");
+			split.forEach(function(val) {
+				pieces.push(<p>{val}</p>)
+	
+			})
+		}
+
+		return (
+			<div>
+			<p id="author-text">{pieces}</p>
+			</div>
+		)
+	}
+})
 
 var AuthorWorkParent = React.createClass({
 	getInitialState: function() {
@@ -197,23 +216,24 @@ var AuthorWorkParent = React.createClass({
 		l.push("moreprompts")
 		
 		//woof
-		var text = $(event.target).prev().val()
+		var links = $(event.target).prev().val()
+		var text = $(event.target).prev().prev().val()
 
-		// links = links.split(", ")
+		links = links.split(", ")
 
-		// var linkInfo = [];
-		// links.forEach(function(val, index) {
-		// 	var lastChar = val.charAt(val.length-1);
-		// 	var text = val;
-		// 	if (lastChar == ",") {
-		// 		text = text.slice(0, -1);
-		// 	} 
-		// 	linkInfo.push(text)
-		// })
+		var linkInfo = [];
+		links.forEach(function(val, index) {
+			var lastChar = val.charAt(val.length-1);
+			var text = val;
+			if (lastChar == ",") {
+				text = text.slice(0, -1);
+			} 
+			linkInfo.push(text)
+		})
 
 		this.setState({elementList: l,
 			authorText: text,
-			// links: linkInfo
+			links: linkInfo
 		})
 	},
 
@@ -247,8 +267,7 @@ var AuthorWorkParent = React.createClass({
 		var ajaxCall3 = this.postToNotificationsEndpoint(this);
 
 		$.when(ajaxCall1, ajaxCall2, ajaxCall3).done(function() {
-			$(".modal").modal();
-			// window.location.reload()
+			window.location.reload()
 			// window.location = window.location.protocol + "//"+ window.location.host + "/admin"
 		})
 
@@ -263,8 +282,7 @@ var AuthorWorkParent = React.createClass({
 			var ajaxCall3 = con.postToNotificationsEndpoint(con, p, newSlug);
 
 			$.when(ajaxCall2, ajaxCall3).done(function() {
-				$(".modal").modal();
-				// window.location.reload()
+				window.location.reload()
 				// window.location = window.location.protocol + "//"+ window.location.host + "/admin"
 			})
 
@@ -297,7 +315,7 @@ var AuthorWorkParent = React.createClass({
 		console.log(this.state)
 
 		var data = {
-		 	//slug: con.state.slug, // don't post a slug and one will be made for you
+		 	// slug: con.state.slug,
 			text: this.state.authorText,
 			parent: parents,
 			links: this.state.links
@@ -403,7 +421,7 @@ var AuthorWorkParent = React.createClass({
 		console.log(this.state.elementList)
 
 		if (this.state.elementList[this.state.elementList.length - 1] == "prompts") {
-			elem = <PromptsPanel handlePromptClick={this.handlePromptClick} handlePromptDelete={this.handlePromptDelete} allPrompts={this.state.allPrompts} handleMouseEnter={this.props.handleMouseEnter}/>
+			elem = <PromptsPanel handlePromptClick={this.handlePromptClick} handlePromptDelete={this.handlePromptDelete} allPrompts={this.state.allPrompts}/>
 		} else if (this.state.elementList[this.state.elementList.length - 1] == "choice") {
 			elem = <ChoicePanel handleChoiceClick={this.handleChoiceClick} promptInfo={this.state.selectedPrompt}/>
 		} else if (this.state.elementList[this.state.elementList.length - 1] == "writing") {
@@ -527,7 +545,7 @@ var PromptsPanel = React.createClass({
 			this.state.allPrompts.forEach(function(sig) {
 				if (con.state.showAllPrompts == true || sig.answers != "answered") {
 					prompts.push(
-						<Prompt ref={sig.answers} sig={sig} handleMouseEnter={con.props.handleMouseEnter} handlePromptClick={con.props.handlePromptClick} handlePromptDelete={con.props.handlePromptDelete} curState="firstPrompt" buttonText="Answer this question"/>
+						<Prompt ref={sig.answers} sig={sig} handlePromptClick={con.props.handlePromptClick} handlePromptDelete={con.props.handlePromptDelete} curState="firstPrompt" buttonText="Answer this question"/>
 					)
 				}
 				
@@ -554,7 +572,7 @@ var PromptsPanel = React.createClass({
 						<br className="clear" />
 					</div>
 
-					<div style={{overflowY: "scroll", maxHeight: "700px"}}>
+					<div>
 						<table id="results-table" className="table table-striped list-group">
 						<tbody className="searchable">
 						{prompts}
@@ -589,40 +607,41 @@ var Prompt = React.createClass({
 		var del;
 		
 		if (this.props.curState == "firstPrompt") {
-			elem = <button className="btn btn-default" data-text={this.props.sig.text} data-userid={this.props.sig.user} data-kind={this.props.sig.kind} id={this.props.sig["_id"]} onClick={this.props.handlePromptClick} >{this.props.buttonText}</button>
+			elem = <button className="btn btn-default" data-text={this.props.sig.text} data-userid={this.props.sig.user} data-kind={this.props.sig.kind} id={this.props.sig["_id"]} onClick={this.props.handlePromptClick}>{this.props.buttonText}</button>
 			del = <button data-id={this.props.sig["_id"]} onClick={this.props.handlePromptDelete}>Delete</button>
 		} else if (this.props.curState == "additionalPrompts") {
 			elem = <input type="checkbox" data-text={this.props.sig.text} data-kind={this.props.sig.kind} data-userid={this.props.sig.user} id={this.props.sig["_id"]} value={this.props.sig["_id"]}/>
 		}
 
 		return (
-			<tr onMouseEnter={this.props.handleMouseEnter}>
-				<td className="sig-type" data-paragraph={this.props.sig.paragraph} data-text={this.props.sig.text} data-start={this.props.sig.numStart} data-end={this.props.sig.numEnd}>{this.props.sig.kind}</td>
-				<td className="sig-text" data-paragraph={this.props.sig.paragraph} data-text={this.props.sig.text}  data-start={this.props.sig.numStart} data-end={this.props.sig.numEnd}><span>{this.props.sig.text}</span></td>
-				<td data-start={this.props.sig.numStart} data-text={this.props.sig.text} data-paragraph={this.props.sig.paragraph} data-end={this.props.sig.numEnd}>{elem}</td>
-				<td data-start={this.props.sig.numStart} data-text={this.props.sig.text} data-paragraph={this.props.sig.paragraph} data-end={this.props.sig.numEnd}>{del}</td>
+			<tr>
+				<td className="sig-type">{this.props.sig.kind}</td>
+				<td className="sig-text"><span>{this.props.sig.text}</span></td>
+				<td>{elem}</td>
+				<td>{del}</td>
 			</tr>
 		)
 	}
 })
 
-// var TextPanel = React.createClass({
-// 	validate: function() {
-// 		// We're going to need to add some sort of catch for illegal characters... once we remember what they are \:D/
-// 	},
+var TextPanel = React.createClass({
+	validate: function() {
+		// We're going to need to add some sort of catch for illegal characters... once we remember what they are \:D/
+	},
 
-// 	render: function() {
-// 		return (
-// 		<div>
-// 			<h1>Write your reply</h1>
-// 				Reply to <b>{this.props.promptInfo.kind}</b> question about <b>{this.props.promptInfo.text}</b>
-// 			    <span className="missing" id="missing-text">Missing text</span>
-// 			    <textarea type="textarea" rows="6" className="form-control" ref="text" id="slug" placeholder="your text"/>
-// 			    <button className="btn btn-default" onClick={this.props.handleTextClick}>Continue</button>
-// 		</div>
-// 		)
-// 	}
-// });
+	render: function() {
+		return (
+		<div>
+			<h1>Write your reply</h1>
+				Reply to <b>{this.props.promptInfo.kind}</b> question about <b>{this.props.promptInfo.text}</b>
+			    <span className="missing" id="missing-text">Missing text</span>
+			    <textarea type="textarea" rows="6" className="form-control" ref="text" id="slug" placeholder="your text"/>
+				<textarea type="textarea" rows="4" className="form-control" ref="links" placeholder="links, separated by commas"/>
+			    <button className="btn btn-default" onClick={this.props.handleTextClick}>Continue</button>
+		</div>
+		)
+	}
+});
 
 var ChoicePanel = React.createClass({
 	render: function() {
@@ -690,29 +709,27 @@ var OldAnswer = React.createClass({
 });
 
 var Modal = React.createClass({
-	handleClick: function() {
-		window.location.reload()
-	},
+
+
 
 	render: function() {
-		return ( 
-			<div className="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-			  <div className="modal-dialog" role="document">
-			    <div className="modal-content">
-			      <div className="modal-header">
-			        <button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={this.handleClick}><span aria-hidden="true">&times;</span></button>
-			        <h4 className="modal-title" id="myModalLabel">Success</h4>
-			      </div>
-			      <div className="modal-body">
-			        You have successfully submitted your reply. Woohoo!
-			      </div>
-			      <div className="modal-footer">
-			        <button type="button" className="btn btn-primary" onClick={this.handleClick}>Done</button>
-			      </div>
-			    </div>
-			  </div>
-			</div>
-		)
+		<div className="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+		  <div className="modal-dialog" role="document">
+		    <div className="modal-content">
+		      <div className="modal-header">
+		        <button type="button" className="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 className="modal-title" id="myModalLabel">Modal title</h4>
+		      </div>
+		      <div className="modal-body">
+		        ...
+		      </div>
+		      <div className="modal-footer">
+		        <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+		        <button type="button" className="btn btn-primary">Save changes</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 	}
 
 })

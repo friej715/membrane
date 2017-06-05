@@ -483,5 +483,3 @@ function concat(a, b) {
 React.render(
 	<Page initialResponse={window.location.pathname}/>, document.getElementById("main")
 )
-
-
